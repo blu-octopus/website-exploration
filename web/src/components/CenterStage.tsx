@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePortfolioStore } from "@/src/store/usePortfolioStore";
 import { Mascot } from "@/src/components/Mascot";
 import { Window } from "@/src/components/Window";
+import { ExplorationsPanel } from "@/src/components/ExplorationsPanel";
+import { AboutPanel } from "@/src/components/AboutPanel";
 
 export function CenterStage() {
   const activeWindows = usePortfolioStore((s) => s.activeWindows);
@@ -13,35 +15,36 @@ export function CenterStage() {
   const focusedWindow =
     activeWindows.find((w) => w.id === focusedWindowId) ?? null;
 
+  const showOverlay = !focusedWindow;
+
   return (
     <section className="relative h-full w-full overflow-hidden">
       <KnowledgeGraphBg />
 
-      {/* Mascot stays visible behind / beside the stage window */}
+      {/* Mascot fades back when a window is on stage */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center pb-16 pt-10"
         animate={{
-          opacity: focusedWindow ? 0.35 : 1,
-          scale: focusedWindow ? 0.92 : 1,
-          x: focusedWindow ? 48 : 0,
+          opacity: focusedWindow ? 0.3 : 1,
+          scale: focusedWindow ? 0.9 : 1,
+          x: focusedWindow ? 52 : 0,
         }}
         transition={{ type: "spring", stiffness: 220, damping: 26 }}
       >
         <Mascot />
       </motion.div>
 
-      {activeNav === "about" && !focusedWindow && (
-        <div className="pointer-events-none absolute inset-x-0 top-28 z-20 flex justify-center px-4">
-          <div className="glass-panel max-w-md rounded-[22px] px-5 py-4 text-center shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
-            <p className="text-sm leading-relaxed text-[#2a2a2a]">
-              Daphne Cheng is a Design Engineer who makes complex interactions feel
-              natural through code and research.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Nav-specific overlays (only when no window is focused) */}
+      <AnimatePresence mode="wait">
+        {showOverlay && activeNav === "explorations" && (
+          <ExplorationsPanel key="explorations" />
+        )}
+        {showOverlay && activeNav === "about" && (
+          <AboutPanel key="about" />
+        )}
+      </AnimatePresence>
 
-      {/* Stage Manager: only the focused stack occupies center stage */}
+      {/* Focused Stage Manager window */}
       <AnimatePresence mode="wait">
         {focusedWindow && <Window key={focusedWindow.id} win={focusedWindow} />}
       </AnimatePresence>

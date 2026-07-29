@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePortfolioStore } from "@/src/store/usePortfolioStore";
 import {
   inferTagsFromText,
@@ -18,10 +18,24 @@ const SUGGESTIONS = [
 export function ChatDock() {
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
   const addChatMessage = usePortfolioStore((s) => s.addChatMessage);
   const setMascotState = usePortfolioStore((s) => s.setMascotState);
   const chatHistory = usePortfolioStore((s) => s.chatHistory);
   const openProjectWindow = usePortfolioStore((s) => s.openProjectWindow);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-show history when there are messages
+  useEffect(() => {
+    if (chatHistory.length > 0) setShowHistory(true);
+  }, [chatHistory.length]);
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [chatHistory.length]);
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -55,33 +69,25 @@ export function ChatDock() {
       const tags =
         parsed.tags.length > 0 ? parsed.tags : inferTagsFromText(parsed.cleanText);
 
-      addChatMessage({
-        role: "assistant",
-        content: parsed.cleanText,
-        tags,
-      });
+      addChatMessage({ role: "assistant", content: parsed.cleanText, tags });
       setMascotState(pickMascotState(tags));
 
       if (data.openProjectId && data.openProjectTitle) {
-        openProjectWindow({
-          projectId: data.openProjectId,
-          title: data.openProjectTitle,
-        });
+        openProjectWindow({ projectId: data.openProjectId, title: data.openProjectTitle });
         setMascotState("proud");
       }
     } catch {
       addChatMessage({
         role: "assistant",
-        content:
-          "Something went wrong on my side. Try asking about Capy Tab Manager or the Chipotle redesign.",
+        content: "Something went wrong. Try asking about Capy Tab Manager or the Chipotle redesign.",
         tags: ["idle"],
       });
       setMascotState("idle");
     } finally {
       setPending(false);
       window.setTimeout(() => {
-        const current = usePortfolioStore.getState().mascotState;
-        if (current === "thinking" || current === "proud") {
+        const s = usePortfolioStore.getState().mascotState;
+        if (s === "thinking" || s === "proud") {
           usePortfolioStore.getState().setMascotState("idle");
         }
       }, 2800);
@@ -89,7 +95,62 @@ export function ChatDock() {
   };
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 flex flex-col items-center gap-3 px-4 pb-6">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 flex flex-col items-center gap-2 px-4 pb-5">
+
+      {/* Chat thread - slides up when messages exist */}
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div
+            key="thread"
+            initial={{ opacity: 0, y: 12, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: 8, height: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            className="pointer-events-auto w-full max-w-[560px]"
+          >
+            <div
+              ref={scrollRef}
+              className="glass-panel mb-1 max-h-52 overflow-y-auto rounded-[20px] px-4 py-3 shadow-[0_12px_36px_rgba(0,0,0,0.09)]"
+            >
+              <div className="flex flex-col gap-2">
+                {chatHistory.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <span
+                      className={`max-w-[80%] rounded-2xl px-3 py-1.5 text-[13px] leading-snug ${
+                        msg.role === "user"
+                          ? "rounded-br-sm bg-[#1f1f1f] text-white"
+                          : "rounded-bl-sm bg-white/80 text-[#2a2a2a]"
+                      }`}
+                    >
+                      {msg.content}
+                    </span>
+                  </div>
+                ))}
+                {pending && (
+                  <div className="flex justify-start">
+                    <span className="rounded-2xl rounded-bl-sm bg-white/80 px-3 py-1.5 text-[13px] text-[#8a8a8a]">
+                      ...
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowHistory(false)}
+              className="pointer-events-auto mb-1 ml-auto block text-[10px] text-[#aaa] transition hover:text-[#555]"
+            >
+              hide
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Suggestion chips - only before first message */}
       {chatHistory.length === 0 && (
         <div className="pointer-events-auto flex flex-wrap justify-center gap-2">
           {SUGGESTIONS.map((s) => (
@@ -105,16 +166,23 @@ export function ChatDock() {
         </div>
       )}
 
+      {/* Input bar */}
       <motion.form
-        onSubmit={(e) => {
-          e.preventDefault();
-          void send(input);
-        }}
+        onSubmit={(e) => { e.preventDefault(); void send(input); }}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 280, damping: 22, delay: 0.15 }}
         className="pointer-events-auto glass-panel flex w-full max-w-[560px] items-center gap-2 rounded-full p-1.5 pl-5 shadow-[0_16px_50px_rgba(0,0,0,0.1)]"
       >
+        {chatHistory.length > 0 && !showHistory && (
+          <button
+            type="button"
+            onClick={() => setShowHistory(true)}
+            className="mr-1 shrink-0 text-[11px] text-[#4C8BF5] transition hover:underline"
+          >
+            Chat
+          </button>
+        )}
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
