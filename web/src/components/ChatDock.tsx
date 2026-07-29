@@ -150,21 +150,20 @@ export function ChatDock() {
         )}
       </AnimatePresence>
 
-      {/* Suggestion chips - only before first message */}
-      {chatHistory.length === 0 && (
-        <div className="pointer-events-auto flex flex-wrap justify-center gap-2">
-          {SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => send(s)}
-              className="glass-panel rounded-full px-3 py-1.5 text-xs text-[#3a3a3a] shadow-sm transition hover:bg-white/80"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Suggestion chips - always visible */}
+      <div className="pointer-events-auto flex flex-wrap justify-center gap-2">
+        {SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => send(s)}
+            disabled={pending}
+            className="glass-panel rounded-full px-3 py-1.5 text-xs text-[#3a3a3a] shadow-sm transition hover:bg-white/80 disabled:opacity-40"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
 
       {/* Input bar */}
       <motion.form
