@@ -5,7 +5,7 @@ Futuristic, spatial, and tactile. This is not just a website; it feels like a mo
 
 ## Motion Guidelines
 *   **Fluidity over speed:** Animations should use spring physics. Instead of linear fade-ins, elements should scale and bounce slightly into place.
-*   **Tactile Feedback:** Use Rive to make clicks feel physical. When a Stage Manager folder is clicked, it should visually compress before expanding into a window.
+*   **Tactile Feedback:** Use Rive to make clicks feel physical. When a Stage Manager stack is clicked, it should visually compress before expanding into a window.
 *   **Continuous Life:** The screen should never be completely still. The 3D character must have an idle breathing animation.
 
 ## AI and 3D Interaction Rules

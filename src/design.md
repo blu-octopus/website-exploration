@@ -8,7 +8,7 @@
 
 ## Layout Structure
 *   **HUD (Top):** Pill-shaped, floating navigation bar.
-*   **Stage Manager (Left):** Vertical stack. Thumbnails group together dynamically based on the active project.
+*   **Stage Manager (Left):** Vertical stack of window thumbnails (macOS Stage Manager style). Stacks group by project and fan into the active center window.
 *   **Center Stage:** The primary interaction zone. Holds the 3D character when idle. Holds the active project windows when a folder is opened.
 *   **Command Line (Bottom):** A spotlight-style search/chat input field locked to the bottom center.
 
