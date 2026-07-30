@@ -24,4 +24,4 @@
 - [x] Refine the window scale-up and scale-down transitions.
 - [x] Add Explorations section content.
 - [ ] Wire Spline 3D scene (requires NEXT_PUBLIC_SPLINE_SCENE env var).
-- [ ] Audit performance and clean up code.
+- [x] Audit performance and clean up code.

@@ -1,11 +1,19 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { usePortfolioStore } from "@/src/store/usePortfolioStore";
 import { Mascot } from "@/src/components/Mascot";
 import { Window } from "@/src/components/Window";
-import { ExplorationsPanel } from "@/src/components/ExplorationsPanel";
-import { AboutPanel } from "@/src/components/AboutPanel";
+
+const ExplorationsPanel = dynamic(
+  () => import("@/src/components/ExplorationsPanel").then((m) => m.ExplorationsPanel),
+  { ssr: false }
+);
+const AboutPanel = dynamic(
+  () => import("@/src/components/AboutPanel").then((m) => m.AboutPanel),
+  { ssr: false }
+);
 
 export function CenterStage() {
   const activeWindows = usePortfolioStore((s) => s.activeWindows);

@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/check-encoding.mjs && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check-encoding": "node scripts/check-encoding.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.88",
