@@ -5,12 +5,6 @@ import { motion } from "framer-motion";
 import { PROJECTS, type Project } from "@/src/data/projects";
 import { usePortfolioStore } from "@/src/store/usePortfolioStore";
 
-/**
- * macOS Stage Manager rail:
- * - Project stacks sit on the left edge as overlapping window thumbnails
- * - Clicking a stack brings that project to center stage
- * - The focused stack nudges forward; others stay recessed
- */
 export function StageManager() {
   const openProjectWindow = usePortfolioStore((s) => s.openProjectWindow);
   const activeWindows = usePortfolioStore((s) => s.activeWindows);
@@ -23,21 +17,7 @@ export function StageManager() {
 
   return (
     <aside className="pointer-events-none absolute bottom-24 left-0 top-16 z-40 flex w-[140px] flex-col items-start justify-center gap-4 pl-2 sm:w-[160px] sm:pl-3">
-      {/* Desktop / clear stage control, like returning to wallpaper */}
-      <motion.button
-        type="button"
-        initial={{ opacity: 0, x: -16 }}
-        animate={{ opacity: focusedProjectId ? 0.55 : 0.35, x: 0 }}
-        whileHover={{ opacity: 0.9, x: 6 }}
-        transition={{ type: "spring", stiffness: 300, damping: 24 }}
-        onClick={clearStage}
-        className="pointer-events-auto ml-1 h-14 w-[100px] overflow-hidden rounded-2xl border border-white/50 bg-gradient-to-br from-white/50 to-white/20 shadow-[0_10px_24px_rgba(0,0,0,0.08)] backdrop-blur-md sm:w-[112px]"
-        aria-label="Show desktop"
-      >
-        <span className="flex h-full items-end p-2 text-[10px] font-medium text-[#6b6b6b]">
-          Desktop
-        </span>
-      </motion.button>
+      <DesktopTile active={Boolean(focusedProjectId)} onClear={clearStage} />
 
       {PROJECTS.map((project, index) => {
         const openWin = activeWindows.find((w) => w.projectId === project.id);
@@ -47,27 +27,41 @@ export function StageManager() {
           <StackThumb
             key={project.id}
             project={project}
-            delay={index * 0.05}
+            delay={index * 0.06}
             isOpen={Boolean(openWin)}
             isFocused={isFocused}
             onActivate={() => {
               if (openWin) {
-                if (isFocused) {
-                  clearStage();
-                  return;
-                }
+                if (isFocused) { clearStage(); return; }
                 bringToFront(openWin.id);
                 return;
               }
-              openProjectWindow({
-                projectId: project.id,
-                title: project.title,
-              });
+              openProjectWindow({ projectId: project.id, title: project.title });
             }}
           />
         );
       })}
     </aside>
+  );
+}
+
+function DesktopTile({ active, onClear }: { active: boolean; onClear: () => void }) {
+  return (
+    <motion.button
+      type="button"
+      initial={{ opacity: 0, x: -16 }}
+      animate={{ opacity: active ? 0.6 : 0.38, x: 0 }}
+      whileHover={{ opacity: 0.92, x: 6, scale: 1.02 }}
+      whileTap={{ scale: 0.94 }}
+      transition={{ type: "spring", stiffness: 320, damping: 24 }}
+      onClick={onClear}
+      className="pointer-events-auto ml-1 h-14 w-[100px] overflow-hidden rounded-2xl border border-white/50 bg-gradient-to-br from-white/50 to-white/20 shadow-[0_10px_24px_rgba(0,0,0,0.08)] backdrop-blur-md sm:w-[112px]"
+      aria-label="Show desktop"
+    >
+      <span className="flex h-full items-end p-2 text-[10px] font-medium text-[#6b6b6b]">
+        Desktop
+      </span>
+    </motion.button>
   );
 }
 
@@ -84,48 +78,67 @@ function StackThumb({
   isFocused: boolean;
   onActivate: () => void;
 }) {
+  const [pressed, setPressed] = useState(false);
   const [hovered, setHovered] = useState(false);
+
   const layers = isOpen ? 3 : 2;
 
+  // Fan spread: 0 = compressed, 1 = fully fanned
+  const spread = pressed ? 0.25 : hovered ? 1 : 0;
+  // Overall scale compresses on press
+  const scale = pressed ? 0.93 : hovered ? 1.03 : isFocused ? 1.05 : 1;
+
   return (
-    <motion.button
-      type="button"
+    <motion.div
+      role="button"
+      tabIndex={0}
+      aria-label={`${isFocused ? "Minimize" : "Open"} ${project.title}`}
       initial={{ opacity: 0, x: -28 }}
       animate={{
-        opacity: isFocused ? 1 : isOpen ? 0.88 : 0.7,
-        x: isFocused ? 14 : hovered ? 10 : 0,
-        scale: isFocused ? 1.05 : hovered ? 1.03 : 1,
+        opacity: isFocused ? 1 : isOpen ? 0.88 : 0.72,
+        x: isFocused ? 14 : 0,
+        scale,
       }}
-      transition={{ type: "spring", stiffness: 340, damping: 26, delay }}
-      whileTap={{ scale: 0.95 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      onClick={onActivate}
-      className="pointer-events-auto relative block h-[108px] w-[118px] text-left sm:h-[118px] sm:w-[128px]"
-      aria-label={`${isFocused ? "Hide" : "Open"} ${project.title}`}
+      transition={{ type: "spring", stiffness: 420, damping: 28, delay }}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => { setHovered(false); setPressed(false); }}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => { setPressed(false); onActivate(); }}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onActivate(); }}
+      className="pointer-events-auto relative block h-[108px] w-[118px] cursor-pointer select-none sm:h-[118px] sm:w-[128px]"
     >
-      {Array.from({ length: layers }).map((_, i) => {
+      {/* Back cards - fan out on hover, compress inward on press */}
+      {Array.from({ length: layers - 1 }).map((_, i) => {
         const depth = layers - 1 - i;
+        const offset = 4 + spread * 5;
         return (
-          <span
+          <motion.span
             key={i}
             aria-hidden
-            className="absolute inset-0 rounded-2xl border border-black/6 bg-white/70 shadow-[0_10px_28px_rgba(0,0,0,0.1)] backdrop-blur-md"
+            animate={{
+              x: offset * depth,
+              y: offset * depth * 0.85,
+            }}
+            transition={{ type: "spring", stiffness: 460, damping: 30 }}
+            className="absolute inset-0 rounded-2xl border border-black/6 bg-white/65 shadow-[0_8px_20px_rgba(0,0,0,0.09)] backdrop-blur-md"
             style={{
-              transform: `translate(${depth * (hovered ? 7 : 5)}px, ${depth * (hovered ? 6 : 4)}px) scale(${1 - depth * 0.03})`,
-              opacity: 1 - depth * 0.18,
+              scale: 1 - depth * 0.03,
+              opacity: 1 - depth * 0.2,
               zIndex: i,
             }}
           />
         );
       })}
 
+      {/* Front card */}
       <span
-        className="absolute inset-0 z-10 overflow-hidden rounded-2xl border border-white/80 bg-white/85 shadow-[0_14px_32px_rgba(0,0,0,0.14)] backdrop-blur-xl"
+        className="absolute inset-0 z-10 overflow-hidden rounded-2xl border border-white/80 bg-white/88 backdrop-blur-xl"
         style={{
           boxShadow: isFocused
-            ? "0 18px 40px rgba(0,0,0,0.18), 0 0 0 2px rgba(76,139,245,0.35)"
-            : undefined,
+            ? "0 18px 44px rgba(0,0,0,0.2), 0 0 0 2px rgba(76,139,245,0.4)"
+            : pressed
+            ? "0 6px 18px rgba(0,0,0,0.12)"
+            : "0 14px 32px rgba(0,0,0,0.14)",
         }}
       >
         <span
@@ -143,7 +156,7 @@ function StackThumb({
           <span
             className="h-10 flex-1 rounded-lg"
             style={{
-              background: `linear-gradient(145deg, ${project.color}66 0%, ${project.color}22 55%, rgba(255,255,255,0.5) 100%)`,
+              background: `linear-gradient(145deg, ${project.color}70 0%, ${project.color}22 60%, rgba(255,255,255,0.5) 100%)`,
             }}
           />
           <span>
@@ -151,11 +164,11 @@ function StackThumb({
               {project.title}
             </span>
             <span className="block truncate text-[9px] text-[#8a8a8a]">
-              {isFocused ? "On Stage" : isOpen ? "In Stage Manager" : "Stack"}
+              {isFocused ? "On Stage" : isOpen ? "Open" : "Click to open"}
             </span>
           </span>
         </span>
       </span>
-    </motion.button>
+    </motion.div>
   );
 }

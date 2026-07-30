@@ -9,7 +9,7 @@
 
 ## Phase 2: Core UI and Content Integration
 - [x] Design the Window content templates for case studies (Chipotle Redesign, Capy Tab Manager).
-- [ ] Implement Rive animations for folder icons in the Stage Manager.
+- [x] Implement tactile spring-compress animations for Stage Manager stacks (Rive-ready fallback).
 - [x] Build the bottom chat input component.
 - [x] Apply glassmorphism styling to all UI containers.
 
@@ -22,6 +22,6 @@
 ## Phase 4: Polish and Sprinkles
 - [x] Add draggable functionality to the project windows.
 - [x] Refine the window scale-up and scale-down transitions.
-- [ ] Add Explorations section content.
+- [x] Add Explorations section content.
 - [ ] Wire Spline 3D scene (requires NEXT_PUBLIC_SPLINE_SCENE env var).
 - [ ] Audit performance and clean up code.
