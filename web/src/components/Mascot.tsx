@@ -1,9 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePortfolioStore } from "@/src/store/usePortfolioStore";
+const CapybaraMascot = dynamic(
+  () =>
+    import("@/src/components/CapybaraMascot").then((m) => m.CapybaraMascot),
+  { ssr: false, loading: () => null },
+);
 
 const Spline = dynamic(() => import("@splinetool/react-spline"), {
   ssr: false,
@@ -11,8 +15,8 @@ const Spline = dynamic(() => import("@splinetool/react-spline"), {
 });
 
 /**
- * Primary mascot matches reference picture 2 (big-eyed designer character).
- * Optional Spline scene via NEXT_PUBLIC_SPLINE_SCENE overlays when provided.
+ * Center-stage mascot: animated capybara SVG (Bezier head/body idle).
+ * Optional Spline scene via NEXT_PUBLIC_SPLINE_SCENE when provided.
  */
 export function Mascot() {
   const mascotState = usePortfolioStore((s) => s.mascotState);
@@ -44,7 +48,7 @@ export function Mascot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 380, damping: 24 }}
-            className="absolute top-[8%] z-20 max-w-[260px] rounded-[22px] rounded-bl-md bg-[#4C8BF5] px-4 py-3 text-sm font-medium leading-snug text-white shadow-[0_12px_30px_rgba(76,139,245,0.35)]"
+            className="absolute -top-2 z-20 max-w-[260px] rounded-[22px] rounded-bl-md bg-[#4C8BF5] px-4 py-3 text-sm font-medium leading-snug text-white shadow-[0_12px_30px_rgba(76,139,245,0.35)]"
           >
             {bubbleText}
             {bubbleText.length >= 120 ? "..." : ""}
@@ -57,47 +61,9 @@ export function Mascot() {
           <Spline scene={splineScene} />
         </div>
       ) : (
-        <motion.div
-          className="relative z-10"
-          animate={
-            mascotState === "thinking"
-              ? { y: [0, -6, 0], rotate: [0, -1.5, 1.5, 0] }
-              : mascotState === "proud"
-                ? { y: [0, -10, 0], scale: [1, 1.04, 1] }
-                : { y: [0, -5, 0] }
-          }
-          transition={
-            mascotState === "idle"
-              ? { duration: 3.4, repeat: Infinity, ease: "easeInOut" }
-              : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
-          }
-        >
-          <div className="relative h-[340px] w-[280px] sm:h-[420px] sm:w-[340px]">
-            <Image
-              src="/assets/mascot.png"
-              alt="Daphne portfolio mascot"
-              fill
-              priority
-              className="object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.12)]"
-              sizes="340px"
-            />
-          </div>
-
-          <motion.span
-            className="absolute right-[18%] top-[22%] text-white drop-shadow"
-            animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.15, 0.9] }}
-            transition={{ duration: 2.2, repeat: Infinity }}
-          >
-            ?
-          </motion.span>
-          <motion.span
-            className="absolute left-[12%] top-[38%] text-white/90 drop-shadow"
-            animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.2, 1] }}
-            transition={{ duration: 2.8, repeat: Infinity, delay: 0.4 }}
-          >
-            ?
-          </motion.span>
-        </motion.div>
+        <div className="relative z-10 mt-8 h-[260px] w-[145px] sm:mt-10 sm:h-[320px] sm:w-[178px]">
+          <CapybaraMascot state={mascotState} className="h-full w-full" />
+        </div>
       )}
     </div>
   );

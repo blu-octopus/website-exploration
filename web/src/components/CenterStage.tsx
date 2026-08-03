@@ -31,7 +31,7 @@ export function CenterStage() {
 
       {/* Mascot fades back when a window is on stage */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center pb-16 pt-10"
+        className="absolute inset-0 flex items-center justify-center pb-24 pt-24"
         animate={{
           opacity: focusedWindow ? 0.3 : 1,
           scale: focusedWindow ? 0.9 : 1,

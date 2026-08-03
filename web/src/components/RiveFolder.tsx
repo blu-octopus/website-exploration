@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
 import { FolderIcon } from "@/src/components/FolderIcon";
+import { withBasePath } from "@/src/lib/basePath";
+
+const FOLDER_RIV = withBasePath("/assets/folder.riv");
 
 /**
  * Rive-powered folder when /assets/folder.riv is present.
@@ -21,7 +24,7 @@ export function RiveFolder({
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/assets/folder.riv", { method: "HEAD" })
+    fetch(FOLDER_RIV, { method: "HEAD" })
       .then((res) => {
         if (!cancelled) setHasRive(res.ok);
       })
@@ -42,7 +45,7 @@ export function RiveFolder({
 
 function RiveFolderCanvas({ pressed }: { pressed?: boolean }) {
   const { rive, RiveComponent } = useRive({
-    src: "/assets/folder.riv",
+    src: FOLDER_RIV,
     stateMachines: "Folder",
     autoplay: true,
   });

@@ -8,12 +8,41 @@ import {
   parseResponseTags,
   pickMascotState,
 } from "@/src/lib/mascotTags";
+import { localChatReply } from "@/src/lib/localChat";
 
 const SUGGESTIONS = [
   "What is Capy Tab Manager?",
   "Open Chipotle Redesign",
   "What are Daphne's skills?",
 ];
+
+async function getChatReply(
+  messages: { role: "user" | "assistant"; content: string }[],
+) {
+  const remote = process.env.NEXT_PUBLIC_CHAT_API_URL;
+  if (remote) {
+    try {
+      const res = await fetch(remote, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages }),
+      });
+      if (res.ok) {
+        return (await res.json()) as {
+          text?: string;
+          openProjectId?: string;
+          openProjectTitle?: string;
+        };
+      }
+    } catch {
+      // Fall through to local knowledge base.
+    }
+  }
+
+  // Tiny delay so thinking state is perceptible on static hosts.
+  await new Promise((r) => window.setTimeout(r, 280));
+  return localChatReply(messages);
+}
 
 export function ChatDock() {
   const [input, setInput] = useState("");
@@ -47,22 +76,10 @@ export function ChatDock() {
     setPending(true);
 
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            ...chatHistory.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content: trimmed },
-          ],
-        }),
-      });
-
-      const data = (await res.json()) as {
-        text?: string;
-        openProjectId?: string;
-        openProjectTitle?: string;
-      };
+      const data = await getChatReply([
+        ...chatHistory.map((m) => ({ role: m.role, content: m.content })),
+        { role: "user", content: trimmed },
+      ]);
 
       const raw = data.text ?? "I can tell you about Daphne's projects and skills.";
       const parsed = parseResponseTags(raw);

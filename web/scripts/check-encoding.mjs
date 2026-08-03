@@ -28,7 +28,13 @@ const EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css"]);
 function walk(dir) {
   const results = [];
   for (const entry of readdirSync(dir)) {
-    if (entry === "node_modules" || entry === ".next" || entry.startsWith(".")) continue;
+    if (
+      entry === "node_modules" ||
+      entry === ".next" ||
+      entry === "out" ||
+      entry.startsWith(".")
+    )
+      continue;
     const full = join(dir, entry);
     const stat = statSync(full);
     if (stat.isDirectory()) results.push(...walk(full));
@@ -55,7 +61,7 @@ for (const file of walk(root)) {
     const banned = BANNED.find(([b]) => b === cp);
     if (banned) {
       const line = text.slice(0, i).split("\n").length;
-      console.error(`BANNED CHAR in ${file}:${line} ¡X U+${cp.toString(16).toUpperCase().padStart(4, "0")} ${banned[1]}`);
+      console.error(`BANNED CHAR in ${file}:${line} -- U+${cp.toString(16).toUpperCase().padStart(4, "0")} ${banned[1]}`);
       errors++;
     }
   }
