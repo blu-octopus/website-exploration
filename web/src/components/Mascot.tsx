@@ -48,7 +48,7 @@ export function Mascot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 380, damping: 24 }}
-            className="absolute -top-2 z-20 max-w-[260px] rounded-[22px] rounded-bl-md bg-[#4C8BF5] px-4 py-3 text-sm font-medium leading-snug text-white shadow-[0_12px_30px_rgba(76,139,245,0.35)]"
+            className="absolute -top-2 z-20 max-w-[260px] rounded-[22px] rounded-bl-md bg-[#0a84ff]/92 px-4 py-3 text-sm font-medium leading-snug text-white shadow-[0_12px_36px_rgba(10,132,255,0.4)] backdrop-blur-md"
           >
             {bubbleText}
             {bubbleText.length >= 120 ? "..." : ""}

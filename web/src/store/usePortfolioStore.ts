@@ -49,13 +49,9 @@ type PortfolioState = {
 const uid = () =>
   globalThis.crypto?.randomUUID?.() ?? `id_${Math.random().toString(16).slice(2)}`;
 
-/** Centered stage frame, accounting for Stage Manager rail + chat dock. */
+/** Drag offset from the centered stage frame (Stage Manager style). */
 function stagePosition(): WindowPosition {
-  if (typeof window === "undefined") return { x: 200, y: 88 };
-  const width = Math.min(640, window.innerWidth * 0.72);
-  const x = Math.max(160, (window.innerWidth - width) / 2 + 40);
-  const y = Math.max(72, window.innerHeight * 0.1);
-  return { x, y };
+  return { x: 0, y: 0 };
 }
 
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({

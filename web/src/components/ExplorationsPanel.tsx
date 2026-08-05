@@ -15,7 +15,7 @@ const EXPLORATIONS = [
     title: "Glassmorphism System",
     desc: "A reusable token set for layered glass surfaces.",
     tag: "Design System",
-    color: "#9B8EC4",
+    color: "#5BA8B0",
   },
   {
     id: "ai-personas",
@@ -41,9 +41,9 @@ export function ExplorationsPanel() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
       transition={{ type: "spring", stiffness: 280, damping: 26 }}
-      className="pointer-events-auto absolute inset-x-0 top-24 z-20 mx-auto max-w-2xl px-4"
+      className="pointer-events-auto absolute inset-x-0 top-28 z-20 mx-auto max-w-2xl px-4"
     >
-      <p className="mb-4 text-center text-xs font-medium uppercase tracking-[0.16em] text-[#8a8a8a]">
+      <p className="mb-4 text-center text-xs font-medium uppercase tracking-[0.16em] text-white/75 drop-shadow">
         Explorations
       </p>
       <div className="grid grid-cols-2 gap-3">
@@ -53,7 +53,8 @@ export function ExplorationsPanel() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 24, delay: i * 0.06 }}
-            className="glass-panel group cursor-default rounded-[18px] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.07)] transition hover:shadow-[0_12px_32px_rgba(0,0,0,0.1)]"
+            whileHover={{ y: -3, scale: 1.02 }}
+            className="liquid-glass group cursor-default rounded-[18px] p-4"
           >
             <div
               className="mb-3 h-12 rounded-xl"

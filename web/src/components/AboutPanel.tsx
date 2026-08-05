@@ -16,9 +16,9 @@ export function AboutPanel() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
       transition={{ type: "spring", stiffness: 280, damping: 26 }}
-      className="pointer-events-auto absolute inset-x-0 top-24 z-20 mx-auto max-w-sm px-4"
+      className="pointer-events-auto absolute inset-x-0 top-28 z-20 mx-auto max-w-sm px-4"
     >
-      <div className="glass-panel rounded-[22px] px-6 py-5 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+      <div className="liquid-glass-strong rounded-[22px] px-6 py-5">
         <div className="mb-4 flex items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1f1f1f] text-sm font-bold text-white">
             DC

@@ -112,22 +112,20 @@ export function ChatDock() {
   };
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 flex flex-col items-center gap-2 px-4 pb-5">
-
-      {/* Chat thread - slides up when messages exist */}
+    <div className="pointer-events-none absolute inset-x-0 bottom-[78px] z-50 flex flex-col items-center gap-2 px-4">
       <AnimatePresence>
         {showHistory && (
           <motion.div
             key="thread"
-            initial={{ opacity: 0, y: 12, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: 8, height: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            initial={{ opacity: 0, y: 14, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 340, damping: 28 }}
             className="pointer-events-auto w-full max-w-[560px]"
           >
             <div
               ref={scrollRef}
-              className="glass-panel mb-1 max-h-52 overflow-y-auto rounded-[20px] px-4 py-3 shadow-[0_12px_36px_rgba(0,0,0,0.09)]"
+              className="liquid-glass mb-1 max-h-52 overflow-y-auto rounded-[22px] px-4 py-3"
             >
               <div className="flex flex-col gap-2">
                 {chatHistory.map((msg) => (
@@ -138,8 +136,8 @@ export function ChatDock() {
                     <span
                       className={`max-w-[80%] rounded-2xl px-3 py-1.5 text-[13px] leading-snug ${
                         msg.role === "user"
-                          ? "rounded-br-sm bg-[#1f1f1f] text-white"
-                          : "rounded-bl-sm bg-white/80 text-[#2a2a2a]"
+                          ? "rounded-br-sm bg-[#0a84ff] text-white"
+                          : "rounded-bl-sm bg-white/75 text-[#2a2a2a]"
                       }`}
                     >
                       {msg.content}
@@ -148,7 +146,7 @@ export function ChatDock() {
                 ))}
                 {pending && (
                   <div className="flex justify-start">
-                    <span className="rounded-2xl rounded-bl-sm bg-white/80 px-3 py-1.5 text-[13px] text-[#8a8a8a]">
+                    <span className="rounded-2xl rounded-bl-sm bg-white/75 px-3 py-1.5 text-[13px] text-[#8a8a8a]">
                       ...
                     </span>
                   </div>
@@ -159,7 +157,7 @@ export function ChatDock() {
             <button
               type="button"
               onClick={() => setShowHistory(false)}
-              className="pointer-events-auto mb-1 ml-auto block text-[10px] text-[#aaa] transition hover:text-[#555]"
+              className="pointer-events-auto mb-1 ml-auto block text-[10px] text-white/70 transition hover:text-white"
             >
               hide
             </button>
@@ -167,34 +165,39 @@ export function ChatDock() {
         )}
       </AnimatePresence>
 
-      {/* Suggestion chips - always visible */}
       <div className="pointer-events-auto flex flex-wrap justify-center gap-2">
         {SUGGESTIONS.map((s) => (
-          <button
+          <motion.button
             key={s}
             type="button"
+            whileHover={{ y: -2, scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => send(s)}
             disabled={pending}
-            className="glass-panel rounded-full px-3 py-1.5 text-xs text-[#3a3a3a] shadow-sm transition hover:bg-white/80 disabled:opacity-40"
+            className="liquid-glass rounded-full px-3.5 py-1.5 text-xs font-medium text-[#2a2a2a] disabled:opacity-40"
           >
             {s}
-          </button>
+          </motion.button>
         ))}
       </div>
 
-      {/* Input bar */}
+      {/* Spotlight-style dock input */}
       <motion.form
-        onSubmit={(e) => { e.preventDefault(); void send(input); }}
-        initial={{ opacity: 0, y: 16 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void send(input);
+        }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 280, damping: 22, delay: 0.15 }}
-        className="pointer-events-auto glass-panel flex w-full max-w-[560px] items-center gap-2 rounded-full p-1.5 pl-5 shadow-[0_16px_50px_rgba(0,0,0,0.1)]"
+        transition={{ type: "spring", stiffness: 300, damping: 24, delay: 0.12 }}
+        className="pointer-events-auto liquid-glass-strong flex w-full max-w-[580px] items-center gap-2 rounded-full p-1.5 pl-5"
       >
+        <SpotlightGlyph />
         {chatHistory.length > 0 && !showHistory && (
           <button
             type="button"
             onClick={() => setShowHistory(true)}
-            className="mr-1 shrink-0 text-[11px] text-[#4C8BF5] transition hover:underline"
+            className="mr-0.5 shrink-0 text-[11px] font-medium text-[#0a84ff] transition hover:underline"
           >
             Chat
           </button>
@@ -203,17 +206,33 @@ export function ChatDock() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask Daphne's AI about projects, skills, process..."
-          className="min-w-0 flex-1 bg-transparent text-sm text-[#1f1f1f] outline-none placeholder:text-[#9a9a9a]"
+          className="min-w-0 flex-1 bg-transparent text-[14px] text-[#1a1a1a] outline-none placeholder:text-[#8a8a8a]"
           disabled={pending}
         />
         <button
           type="submit"
           disabled={pending || !input.trim()}
-          className="rounded-full bg-[#1f1f1f] px-4 py-2.5 text-sm font-medium text-white transition enabled:hover:bg-[#333] disabled:opacity-40"
+          className="rounded-full bg-[#0a84ff] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(10,132,255,0.35)] transition enabled:hover:brightness-110 disabled:opacity-40"
         >
           {pending ? "..." : "Send"}
         </button>
       </motion.form>
     </div>
+  );
+}
+
+function SpotlightGlyph() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="shrink-0 text-[#6a6a6a]"
+      aria-hidden
+    >
+      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M16.5 16.5 21 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
   );
 }
