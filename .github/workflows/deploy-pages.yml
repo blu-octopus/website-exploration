@@ -5,17 +5,17 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Pages is configured as "Deploy from a branch" (gh-pages).
+# This workflow builds the static export and pushes it to gh-pages.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -49,16 +49,13 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ steps.base.outputs.path }}
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: web/out
+      - name: Add .nojekyll
+        run: touch out/.nojekyll
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: web/out
+          force_orphan: true
+          commit_message: "Deploy static portfolio site"

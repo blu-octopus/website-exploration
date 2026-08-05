@@ -28,9 +28,12 @@ Output is `web/out/`.
 
 **GitHub Pages (recommended)**
 
-1. In the repo: **Settings ¡÷ Pages ¡÷ Build and deployment ¡÷ Source: GitHub Actions**
-2. Push to `main` (or `master`). The workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds `web/` and publishes `web/out/`.
-3. Project sites get base path `/<repo-name>` automatically (e.g. `https://<user>.github.io/website-exploration/`). User sites (`<user>.github.io` repo) use root.
+1. In the repo: **Settings ¡÷ Pages ¡÷ Build and deployment ¡÷ Source: Deploy from a branch**
+2. Branch: **`gh-pages`** / folder: **`/`** (root)
+3. Push to `main`. The workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds `web/` and publishes to the `gh-pages` branch.
+4. Project sites get base path `/<repo-name>` automatically (e.g. `https://<user>.github.io/website-exploration/`). User sites (`<user>.github.io` repo) use root.
+
+Live demo: https://blu-octopus.github.io/website-exploration/
 
 **Netlify / Cloudflare Pages**
 
