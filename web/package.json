@@ -10,11 +10,8 @@
     "check-encoding": "node scripts/check-encoding.mjs"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.88",
-    "@ai-sdk/react": "^3.0.238",
     "@rive-app/react-canvas": "^4.30.0",
     "@splinetool/react-spline": "^4.1.0",
-    "ai": "^6.0.236",
     "framer-motion": "^12.42.2",
     "next": "16.2.12",
     "react": "19.2.4",
